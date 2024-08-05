@@ -4,7 +4,18 @@ let coords;
 
 let drawing = false;
 let square = null;
+let image = null;
 let scale = 1;
+let translateX = 0;
+let translateY = 0;
+
+window.addEventListener("load", pageLoaded);
+
+function pageLoaded() {
+    image = new Image();
+    image.addEventListener("load", init);
+    image.src = "cat.jpg";
+}
 
 function init() {
     coords = document.getElementById("coords");
@@ -44,19 +55,19 @@ function init() {
             clear();
         }
         else if (event.key === "ArrowUp") {
-            ctx.translate(0, -10);
+            translateY += 10;
             draw();
         }
         else if (event.key === "ArrowDown") {
-            ctx.translate(0, 10);
+            translateY -= 10;
             draw();
         }
         else if (event.key === "ArrowLeft") {
-            ctx.translate(-10, 0);
+            translateX += 10;
             draw();
         }
         else if (event.key === "ArrowRight") {
-            ctx.translate(10, 0);
+            translateX -= 10;
             draw();
         }
     });
@@ -76,6 +87,7 @@ function updateCoordinates(mouseEvent) {
 
 function draw() {
     clear();
+    drawImage();
     strokeRect({ x: 5, y: 5 }, { x: canvas.width - 5, y: canvas.height - 5 });
     if (square) {
         strokeRect(square.start, square.end);
@@ -99,9 +111,18 @@ function zoomOut() {
 function getRelativeCoordinates(event) {
     const eventX = event.x - canvas.offsetLeft;
     const eventY = event.y - canvas.offsetTop;
-    const x = eventX / scale;
-    const y = eventY / scale;
+    const x = eventX / scale - translateX;
+    const y = eventY / scale - translateY;
     return { x, y };
+}
+
+function drawImage() {
+    ctx.save();
+    const x = (canvas.clientWidth - image.width) / 2 + translateX;
+    const y  = (canvas.clientHeight - image.height) / 2 + translateY;
+    ctx.translate(x, y);
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
 }
 
 function strokeRect(start, end) {
@@ -121,14 +142,19 @@ function strokeRect(start, end) {
     width = Math.abs(end.x - start.x);
     height = Math.abs(end.y- start.y);
 
+    ctx.save();
+    ctx.translate(translateX, translateY);
     ctx.fillStyle = "rgb(200 0 0)";
     ctx.strokeRect(x, y, width, height);
+    ctx.restore();
 
     console.log("strokeRect", x, y, width, height);
 }
 
 function clear() {
+    ctx.save();
+    // This is a hack to clear the canvas when zoomed out
+    ctx.scale(1 / scale, 1 / scale);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
 }
-
-window.addEventListener("load", init);
