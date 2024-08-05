@@ -13,6 +13,13 @@
   </head>
   <body>
     <h2>Interactive Canvas</h2>
+    <div style="padding: 1rem;">
+      <span id="coords">Mouse over canvas to see coordinates...</span>
+    </div>
+    <div style="padding: 1rem;">
+      <button style="width: 5rem; height: 2rem;" onclick="zoomOut()">-</button>
+      <button style="width: 5rem; height: 2rem;" onclick="zoomIn()">+</button>
+    </div>
     <canvas id="image-canvas" width="600" height="400">
         An image that can be panned and zoomed
     </canvas>
